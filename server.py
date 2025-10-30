@@ -1,9 +1,10 @@
 from flask import Flask, request, jsonify
 import whisper
 import requests
+import os
 
 app = Flask(__name__)
-model = whisper.load_model("small")
+model = whisper.load_model("small")  # Kleinere Version, läuft schneller auf Free-Tier
 
 @app.route("/transcribe", methods=["POST"])
 def transcribe():
@@ -13,13 +14,19 @@ def transcribe():
         return jsonify({"error": "No audio_url provided"}), 400
 
     # Audio herunterladen
+    audio_file = "temp_audio.ogg"
     r = requests.get(audio_url)
-    with open("temp.ogg", "wb") as f:
+    with open(audio_file, "wb") as f:
         f.write(r.content)
 
     # Transkription
-    result = model.transcribe("temp.ogg")
-    return jsonify({"text": result["text"]})
+    result = model.transcribe(audio_file)
+    text = result.get("text", "")
+
+    # Temp-Datei löschen
+    os.remove(audio_file)
+
+    return jsonify({"text": text})
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8080)

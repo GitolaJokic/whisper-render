@@ -1,11 +1,13 @@
+# Base Image
 FROM python:3.11-slim
 
 # Systemabhängigkeiten
 RUN apt-get update && apt-get install -y ffmpeg git && rm -rf /var/lib/apt/lists/*
 
-# Whisper installieren
-RUN pip install --no-cache-dir git+https://github.com/openai/whisper.git
+# Python-Pakete installieren
+RUN pip install --no-cache-dir git+https://github.com/openai/whisper.git flask requests
 
+# Arbeitsverzeichnis
 WORKDIR /app
 
 # Server starten
